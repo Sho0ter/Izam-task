@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: DockerFile
+    container_name: laravel-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=
+      - APP_URL=http://localhost:8001
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=laravel
+      - DB_USERNAME=laravel_user
+      - DB_PASSWORD=secret
+      - CACHE_DRIVER=file
+      - SESSION_DRIVER=file
+      - QUEUE_DRIVER=sync
+    depends_on:
+      - mysql
+    networks:
+      - laravel
+
+  # Nginx Service
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+    volumes:
+      - ./backend:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - app
+    networks:
+      - laravel
+
+  # MySQL Service
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - laravel
+    healthcheck:
+      test: ["CMD", "mysql", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql       # This should match your MySQL service name
+      PMA_PORT: 3306        # Default MySQL port inside the container network
+      UPLOAD_LIMIT: 300M
+    ports:
+      - "8080:80"           # Exposes phpMyAdmin at http://localhost:8080
+    depends_on:
+      - mysql
+    networks:
+      - laravel      
+# Docker Networks
+networks:
+  laravel:
+    driver: bridge
+
+# Volumes
+volumes:
+  dbdata:
+    driver: local

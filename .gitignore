@@ -1,0 +1,10 @@
+/node_modules
+/backend/public/build
+/backend/public/hot
+/backend/public/storage
+/backend/storage/*.key
+/backend/vendor
+/backend/.env
+/backend/resources/js/node_modules
+/backend/resources/js/dist
+/docker

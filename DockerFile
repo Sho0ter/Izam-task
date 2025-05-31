@@ -1,0 +1,43 @@
+FROM php:8.2-fpm
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libzip-dev \
+    libicu-dev \
+    default-mysql-client \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    netcat-openbsd \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring exif pcntl bcmath zip intl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www
+
+# Copy application files
+COPY ./backend /var/www
+
+# Copy entrypoint script (only once and at the right time)
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Expose port 9000
+EXPOSE 9000
+
+# Run the entrypoint script
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+# Start PHP-FPM
+CMD ["php-fpm"]

@@ -36,28 +36,22 @@ A full-stack e-commerce platform built with Laravel (Backend) and React (Fronten
 
 ### Setup Instructions
 
-1. Clone the repository:
-   ```bash
-   git clone [your-repository-url]
-   cd FullStackDeveloperTestTask
-   ```
-
-2. Create a `.env` file by copying the example:
+1. Create a `.env` file by copying the example:
    ```bash
    cp backend/.env.example backend/.env
    ```
 
-3. Make the setup scripts executable:
+2. Make the setup scripts executable:
    ```bash
    chmod +x setup.sh docker-entrypoint.sh
    ```
 
-4. Start the Docker containers:
+3. Start the Docker containers:
    ```bash
    docker-compose up -d
    ```
 
-5. The containers will automatically run the setup process which includes:
+4. The containers will automatically run the setup process which includes:
    - Installing PHP dependencies
    - Generating application key (if not exists)
    - Setting proper file permissions
@@ -65,7 +59,7 @@ A full-stack e-commerce platform built with Laravel (Backend) and React (Fronten
    - Creating storage link
    - Caching configuration
 
-6. Monitor the setup process:
+5. Monitor the setup process:
    ```bash
    docker-compose logs -f app
    ```
